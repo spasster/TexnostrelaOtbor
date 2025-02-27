@@ -39,6 +39,8 @@ INSTALLED_APPS = [
 
     'users',
     'routes',
+
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
