@@ -4,7 +4,12 @@ from . import views
 urlpatterns = [
     # Путь для создания маршрута
     path('create_route/', views.create_route, name='create-route'),
+
     path('get_routes/', views.get_all_routes, name='get-all-routes'),
+    path('get_route/<int:route_id>/', views.get_route, name='get-route'),
+
+    path('get_unpublished_routes/', views.get_unpublished_routes, name='get-un-routes'),
+    path('route/<int:route_id>/publish/', views.publish_route, name='publish-route'),
 
     # Путь для добавления комментария или ответа
     path('route/<int:route_id>/comment/', views.add_comment, name='add-comment'),

@@ -1,9 +1,10 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
+from routes.serializers import RouteSerializer
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -56,3 +57,11 @@ class CustomAuthTokenSerializer(serializers.Serializer):
     def get_token(self, user):
         # Генерация токенов для пользователя
         return RefreshToken.for_user(user)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    routes = RouteSerializer(many=True, read_only=True)  # Вложенные маршруты пользователя
+
+    class Meta:
+        model = get_user_model()  # Получаем модель пользователя
+        fields = ['id', 'email', 'routes']  # Добавляем поле для маршруто

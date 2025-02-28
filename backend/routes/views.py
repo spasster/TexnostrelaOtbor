@@ -1,6 +1,7 @@
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from .models import Route, RoutePhoto, Comment, CompletedRoute
 from .serializers import RouteSerializer, CommentSerializer, CompletedRouteSerializer
 
@@ -38,10 +39,52 @@ def get_all_routes(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def get_route(request, route_id):
+    """
+    Метод для получения опеределенного маршрутов.
+    """
+    route = Route.objects.get(published=True, id=route_id)  # Извлекаем все маршруты
+    serializer = RouteSerializer(route)  # Сериализуем маршруты
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_unpublished_routes(request):
+    """
+    Метод для получения неопубликованных маршрутов.
+    """
+    routes = Route.objects.filter(published=False)  # Извлекаем все маршруты
+    serializer = RouteSerializer(routes, many=True)  # Сериализуем маршруты
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Только аутентифицированные пользователи могут публиковать маршруты
+def publish_route(request, route_id):
+    """
+    Метод для публикации маршрута. Меняет поле published на True.
+    Доступ только для автора маршрута.
+    """
+    try:
+        route = Route.objects.get(id=route_id)  # Получаем маршрут по ID
+    except Route.DoesNotExist:
+        return Response({"error": "Route not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Обновляем статус опубликованного маршрута
+    route.published = True
+    route.save()
+
+    return Response({"message": "Route published successfully", "route": route.name}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def mark_route_as_completed(request, route_id):
     """
     Метод для пометки маршрута как пройденного и добавления оценки.
+    После оценки пересчитывается общий рейтинг маршрута.
     """
     try:
         route = Route.objects.get(id=route_id)
@@ -53,6 +96,10 @@ def mark_route_as_completed(request, route_id):
     if rating is None:
         return Response({"error": "Rating is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Оценка должна быть в пределах 1-5
+    if rating < 1 or rating > 5:
+        return Response({"error": "Rating must be between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
+
     # Создаем объект CompletedRoute
     completed_route = CompletedRoute.objects.create(
         route=route,
@@ -60,9 +107,26 @@ def mark_route_as_completed(request, route_id):
         rating=rating
     )
 
+    # Обновляем рейтинг маршрута
+    update_route_rating(route)
+
     # Сериализуем и возвращаем пройденный маршрут
     serializer = CompletedRouteSerializer(completed_route)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+def update_route_rating(route):
+    """
+    Функция для пересчета среднего рейтинга маршрута.
+    """
+    completed_routes = route.completed_routes.all()  # Получаем все завершенные маршруты для этого маршрута
+    total_rating = sum([completed_route.rating for completed_route in completed_routes])  # Суммируем все оценки
+    count = completed_routes.count()  # Количество оценок
+
+    if count > 0:
+        average_rating = total_rating / count  # Средний рейтинг
+        # Обновляем рейтинг маршрута
+        route.rating = round(average_rating, 1)  # Округляем до одного знака после запятой
+        route.save()
 
 
 @api_view(['GET'])
