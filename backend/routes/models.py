@@ -22,7 +22,7 @@ class RoutePoint(models.Model):
     description = models.TextField(blank=True, null=True)  # Описание точки
     latitude = models.FloatField()  # Широта
     longitude = models.FloatField()  # Долгота
-    photo = models.ImageField(upload_to='route_points/', blank=True, null=True)  # Фото точки
+    photo = models.TextField(blank=True, null=True)  # БЕЗ ограничений
     order = models.IntegerField()  # Порядок точки на маршруте
 
     def __str__(self):

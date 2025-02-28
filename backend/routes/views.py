@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from .models import Route, RoutePhoto, Comment, CompletedRoute
-from .serializers import RouteSerializer, CommentSerializer, CompletedRouteSerializer
+from .serializers import RouteSerializer, CommentSerializer, CompletedRouteSerializer, RoutePointSerializer
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,19 +12,29 @@ from .serializers import RouteSerializer
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Убедись, что пользователь аутентифицирован
 def create_route(request):
-    """
-    Метод для создания нового маршрута с точками и фотографиями.
-    """
-    user = request.user  # Получаем текущего аутентифицированного пользователя
+    """Метод для создания нового маршрута с точками."""
+    user = request.user  # Получаем текущего пользователя
 
-    serializer = RouteSerializer(data=request.data)
+    data = request.data.copy()
+    data['author'] = user.id  # Добавляем автора маршрута
 
+    print(data)
+    serializer = RouteSerializer(data=data)
     if serializer.is_valid():
-        route = serializer.save(author=user)  # Сохраняем маршрут
+        route = serializer.save(author=user)  # Передаем автора при сохранении
+
+        # Если точки маршрута переданы, сохраняем их
+        points_data = request.data.get('points', [])
+        for point_data in points_data:
+            point_serializer = RoutePointSerializer(data=point_data)
+            if point_serializer.is_valid():
+                point_serializer.save(route=route)
+            else:
+                return Response(point_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

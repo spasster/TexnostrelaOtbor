@@ -13,6 +13,12 @@ class RoutePointSerializer(serializers.ModelSerializer):
         model = RoutePoint
         fields = ['id', 'name', 'description', 'latitude', 'longitude', 'photo', 'order']
 
+    def validate_photo(self, value):
+        # Если фото не передано (пустое значение), возвращаем None
+        if value == "" or value is None:
+            return None  # Возвращаем None, что будет интерпретироваться как null
+        return value
+
 
 class RouteSerializer(serializers.ModelSerializer):
     points = RoutePointSerializer(many=True, read_only=False)  # Сделаем точки редактируемыми
@@ -40,7 +46,6 @@ class RouteSerializer(serializers.ModelSerializer):
             RoutePhoto.objects.create(route=route, **photo_data)
 
         return route
-
 
 
 class CommentSerializer(serializers.ModelSerializer):
