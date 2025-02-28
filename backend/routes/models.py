@@ -10,14 +10,23 @@ class Route(models.Model):
     rating = models.IntegerField(default=0)
     users = models.ManyToManyField(get_user_model(), related_name='joined_routes', blank=True)
     published = models.BooleanField(default=False)
-
-    # Поле для хранения точек маршрута (список координат)
-    points = models.JSONField(default=list, blank=True, null=True)  # Храним список точек
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+
+class RoutePoint(models.Model):
+    route = models.ForeignKey(Route, related_name='points', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, blank=True, null=True)  # Название точки
+    description = models.TextField(blank=True, null=True)  # Описание точки
+    latitude = models.FloatField()  # Широта
+    longitude = models.FloatField()  # Долгота
+    photo = models.ImageField(upload_to='route_points/', blank=True, null=True)  # Фото точки
+    order = models.IntegerField()  # Порядок точки на маршруте
+
+    def __str__(self):
+        return self.name or f"Point {self.id} for {self.route.name}"
 
 
 class RoutePhoto(models.Model):
@@ -31,9 +40,11 @@ class RoutePhoto(models.Model):
 
 class Comment(models.Model):
     route = models.ForeignKey(Route, related_name='comments', on_delete=models.CASCADE)  # Связь с маршрутом
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='comments')  # Связь с автором комментария
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
+                               related_name='comments')  # Связь с автором комментария
     text = models.TextField()  # Текст комментария
-    parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')  # Родительский комментарий (если это ответ)
+    parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
+                                       related_name='replies')  # Родительский комментарий (если это ответ)
     created_at = models.DateTimeField(auto_now_add=True)  # Время создания комментария
 
     def __str__(self):
@@ -42,10 +53,10 @@ class Comment(models.Model):
 
 class CompletedRoute(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='completed_routes')  # Связь с маршрутом
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='completed_routes')  # Связь с пользователем
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
+                             related_name='completed_routes')  # Связь с пользователем
     rating = models.IntegerField(default=0)  # Оценка маршрута, поставленная пользователем
     completed_at = models.DateTimeField(auto_now_add=True)  # Время, когда маршрут был завершен
 
     def __str__(self):
         return f"CompletedRoute by {self.user.email} on {self.route.name}"
-

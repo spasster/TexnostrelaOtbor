@@ -6,3 +6,5 @@ venv
 /backend/routes/migrations/0003_completedroute.py
 /backend/routes/migrations/__init__.py
 /backend/users/migrations/__init__.py
+/backend/routes/migrations/
+/backend/users/migrations/

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Route, RoutePhoto, Comment, CompletedRoute
+from .models import Route, RoutePhoto, Comment, CompletedRoute, RoutePoint
 
 
 class RoutePhotoSerializer(serializers.ModelSerializer):
@@ -8,25 +8,22 @@ class RoutePhotoSerializer(serializers.ModelSerializer):
         fields = ['id', 'photo', 'uploaded_at']
 
 
-class RouteSerializer(serializers.ModelSerializer):
-    # Сериализуем точки маршрута (список координат)
-    points = serializers.ListField(
-        child=serializers.ListField(
-            child=serializers.FloatField(),  # Широта и долгота
-            allow_empty=False
-        ),
-        required=True
-    )
+class RoutePointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoutePoint
+        fields = ['id', 'name', 'description', 'latitude', 'longitude', 'photo', 'order']
 
-    # Сериализуем фотографии маршрута
-    photos = RoutePhotoSerializer(many=True, required=False)  # Фото могут быть не обязательными
+
+class RouteSerializer(serializers.ModelSerializer):
+    points = RoutePointSerializer(many=True, read_only=False)  # Сделаем точки редактируемыми
+    photos = RoutePhotoSerializer(many=True, required=False)
 
     class Meta:
         model = Route
         fields = ['id', 'name', 'type', 'description', 'rating', 'points', 'users', 'published', 'photos']
 
     def create(self, validated_data):
-        # Извлекаем фотографии из данных
+        # Извлекаем фотографии и точки
         photos_data = validated_data.pop('photos', [])
         points_data = validated_data.pop('points', [])
 
@@ -34,14 +31,16 @@ class RouteSerializer(serializers.ModelSerializer):
         route = Route.objects.create(**validated_data)
 
         # Сохраняем точки маршрута
-        route.points = points_data
-        route.save()
+        for point_data in points_data:
+            # Убедимся, что поле `route` связано с созданным маршрутом
+            RoutePoint.objects.create(route=route, **point_data)
 
-        # Сохраняем фотографии маршрута, если они есть
+        # Сохраняем фотографии маршрута
         for photo_data in photos_data:
             RoutePhoto.objects.create(route=route, **photo_data)
 
         return route
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
