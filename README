@@ -1,0 +1,85 @@
+ССЫЛКА НА ГИТХАБ - https://github.com/spasster/TexnostrelaOtbor
+
+Инструкция по запуску проекта на локальной машине (Windows)
+1. Установка необходимых программ
+Перед тем как начать, убедитесь, что у вас установлены следующие программы:
+
+Python 3.10.6
+Загрузите с официального сайта: Python 3.10.6.
+
+Node.js
+Загрузите с официального сайта: Node.js.
+
+PostgreSQL
+Загрузите и установите PostgreSQL с официального сайта: PostgreSQL Downloads. Вы должны использовать pgAdmin для создания и управления базой данных.
+
+2. Клонирование репозитория с проектом
+Клонируйте репозиторий с GitHub, используя команду:
+
+git clone https://github.com/spasster/TexnostrelaOtbor
+Перейдите в папку с проектом:
+
+cd TexnostrelaOtbor
+3. Настройка базы данных (PostgreSQL)
+Откройте pgAdmin (если не установлено, скачайте и установите через PostgreSQL).
+
+Создайте новую базу данных:
+
+В левой панели выберите Databases → правой кнопкой мыши выберите Create → Database.
+Назовите базу texno и создайте её.
+Откройте файл settings.py в папке /backend/backend и настройте подключение к базе данных:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'texno',
+        'USER': 'your_database_user',  # Имя пользователя PostgreSQL
+        'PASSWORD': 'your_database_password',  # Пароль пользователя
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+Замените your_database_user и your_database_password на реальные значения.
+После этого, убедитесь, что PostgreSQL работает на вашем компьютере и создана база данных.
+
+4. Настройка Python (Backend)
+Перейдите в папку /backend:
+
+cd backend
+Создайте виртуальное окружение:
+
+python -m venv venv
+Активируйте виртуальное окружение:
+
+Для Windows:
+venv\Scripts\activate
+Установите все зависимости из файла requirements.txt:
+
+pip install -r requirements.txt
+5. Настройка Node.js и Nuxt (Frontend)
+Перейдите в папку /frontend:
+
+cd frontend
+Установите зависимости с помощью pnpm:
+
+Если у вас не установлен pnpm, выполните:
+
+npm install -g pnpm
+Установите зависимости:
+
+pnpm install
+6. Миграции базы данных и запуск сервера Django
+Вернитесь в папку /backend и выполните миграции базы данных:
+
+python manage.py makemigrations users routes
+python manage.py migrate
+
+Запустите сервер Django:
+
+python manage.py runserver
+7. Запуск Nuxt (Frontend)
+В папке /frontend запустите сервер Nuxt:
+
+pnpm dev
+Откройте в браузере http://localhost:3000 для просмотра сайта.
+
