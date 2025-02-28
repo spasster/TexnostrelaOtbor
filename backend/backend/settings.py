@@ -26,12 +26,10 @@ SECRET_KEY = 'django-insecure-f=&0)no!pr1k7jvxux&lli%bdf0a%er_n#28(@q*rws!rixufk
 DEBUG = True
 ALLOWED_HOSTS = ['backend', 'localhost', '127.0.0.1', 'drainwalk.tech', 'frontend']
 
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [
-    'https://drainwalk.tech',
-    'http://localhost',
-    'http://127.0.0.1',
-    'http://backend',
+CORS_ALLOW_ALL_ORIGINS = True # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://*",  # Адрес вашего Nuxt-приложения
 ]
 
 # Application definition
@@ -48,7 +46,7 @@ INSTALLED_APPS = [
     'routes',
 
     'drf_yasg',
-    'corsheaders',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -59,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -89,9 +88,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'texno',  # Название базы данных
         'USER': 'postgres',  # Имя пользователя базы данных
-        'PASSWORD': 'root',  # Пароль пользователя
+        'PASSWORD': 'sex123',  # Пароль пользователя
         'HOST': 'localhost',  # Хост, если база данных на локальной машине
-        'PORT': '5433',  # Порт PostgreSQL, по умолчанию 5432
+        'PORT': '5432',  # Порт PostgreSQL, по умолчанию 5432
     }
 }
 
