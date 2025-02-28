@@ -88,9 +88,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'texno',  # Название базы данных
         'USER': 'postgres',  # Имя пользователя базы данных
-        'PASSWORD': 'sex123',  # Пароль пользователя
+        'PASSWORD': 'root',  # Пароль пользователя
         'HOST': 'localhost',  # Хост, если база данных на локальной машине
-        'PORT': '5432',  # Порт PostgreSQL, по умолчанию 5432
+        'PORT': '5433',  # Порт PostgreSQL, по умолчанию 5432
     }
 }
 

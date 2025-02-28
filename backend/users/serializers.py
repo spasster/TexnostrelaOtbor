@@ -64,4 +64,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()  # Получаем модель пользователя
-        fields = ['id', 'email', 'routes']  # Добавляем поле для маршруто
+        fields = ['id', 'email', 'routes', 'avatar']  # Добавляем поле для маршруто
