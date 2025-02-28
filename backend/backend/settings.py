@@ -24,8 +24,15 @@ SECRET_KEY = 'django-insecure-f=&0)no!pr1k7jvxux&lli%bdf0a%er_n#28(@q*rws!rixufk
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ALLOWED_HOSTS = ['backend', 'localhost', '127.0.0.1', 'drainwalk.tech', 'frontend']
 
-ALLOWED_HOSTS = []
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://drainwalk.tech',
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://backend',
+]
 
 # Application definition
 
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
     'routes',
 
     'drf_yasg',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
